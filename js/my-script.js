@@ -1,5 +1,74 @@
 /* Отправка формы */
-$(".order-form").on("submit",function(e){e.stopPropagation(),e.preventDefault();let o=this,r=($(".submit",o),new FormData);return $('[name="hidden"]',o).val()?o.reset():$.get("https://ipinfo.io",function(e){if("UA"!==e.country)return alert("Форма може бути заповнена тільки з України. Або Вимкніть VPN."),o.reset(),!1;$(".submit",o).val("Відправлення..."),$("input,textarea",o).attr("disabled","");var e=$('[name="name"]',o).val(),t=$('[name="phone"]',o).val(),a=$('[name="email"]',o).val(),n=$('[name="select"]',o).val();e&&r.append("Ім`я",e),t&&r.append("Телефон",t),a&&r.append("Email",a),n&&r.append("Пропозиція",n),r.append("Товар",window.location.href),$.ajax({url:"telegram.php",type:"POST",data:r,cache:!1,dataType:"json",processData:!1,contentType:!1,xhr:function(){var e=$.ajaxSettings.xhr();return e.upload&&e.upload.addEventListener("progress",function(t){if(t.lengthComputable){let e=t.loaded/t.total*100;e=e.toFixed(0),$(".submit",o).html(e+"%")}},!1),e},error:function(e,t){},complete:function(){window.location.href="/thank-you-page",o.reset()}})},"json"),!1});
+$(".order-form").on("submit", function (event) {
+    event.stopPropagation();
+    event.preventDefault();
+  
+    let form = this,
+        submit = $(".submit", form),
+        data = new FormData();
+  
+    // Проверка наличия и заполнения скрытого поля
+    let hiddenValue = $('[name="hidden"]', form).val();
+    if (hiddenValue) {
+      form.reset();
+      return false;
+    }
+  
+    $(".submit", form).val("Відправлення...");
+    $("input,textarea", form).attr("disabled", "");
+    let nameValue = $('[name="name"]', form).val();
+    let phoneValue = $('[name="phone"]', form).val();
+    let emailValue = $('[name="email"]', form).val();
+    let selectValue = $('[name="select"]', form).val();
+  
+    if (nameValue) {
+      data.append("Ім`я", nameValue);
+    }
+    if (phoneValue) {
+      data.append("Телефон", phoneValue);
+    }
+    if (emailValue) {
+      data.append("Email", emailValue);
+    }
+    if (selectValue) {
+      data.append("Пропозиція", selectValue);
+    }
+    data.append("Товар", window.location.href);
+  
+    $.ajax({
+      url: "telegram.php",
+      type: "POST",
+      data: data,
+      cache: !1,
+      dataType: "json",
+      processData: !1,
+      contentType: !1,
+      xhr: function () {
+        let myXhr = $.ajaxSettings.xhr();
+        if (myXhr.upload) {
+          myXhr.upload.addEventListener(
+            "progress",
+            function (e) {
+              if (e.lengthComputable) {
+                let percentage = (e.loaded / e.total) * 100;
+                percentage = percentage.toFixed(0);
+                $(".submit", form).html(percentage + "%");
+              }
+            },
+            !1
+          );
+        }
+        return myXhr;
+      },
+      error: function (jqXHR, textStatus) {},
+      complete: function () {
+        window.location.href = "/thank-you-page";
+        form.reset();
+      },
+    });
+  
+    return false;
+  });
 
 /* Devtools */
 document.addEventListener("keydown",(e=>{const t=e.ctrlKey||e.metaKey&&e.shiftKey;t&&["I","J","C"].includes(e.key)&&e.preventDefault(),(t||e.ctrlKey||e.metaKey)&&"S"===e.key&&e.preventDefault(),"F12"===e.key&&"F12"===e.code&&e.preventDefault()}));
